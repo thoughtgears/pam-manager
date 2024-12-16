@@ -69,7 +69,7 @@ jobs:
       id: deploy
       with:
         service: pam-manager
-        image: ${{ env.region }}-docker.pkg.dev/${{ env.project }}/images/pam-manager@${{ steps.build-and-push.outputs.image-digest }}
+        image: ${{ env.region }}-docker.pkg.dev/${{ env.project }}/images/pam-manager@${{ steps.build-and-push.outputs.digest }}
         env_vars: |
           GCP_PROJECT_ID=${{ env.project }}
         tag: sha-${{ env.short_sha }}
