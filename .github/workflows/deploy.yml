@@ -1,0 +1,79 @@
+on:
+  push:
+    branches:
+      - main
+
+env:
+  wif_sa: ${{ vars.WORKLOAD_IDENTITY_SERVICE_ACCOUNT }}
+  wif_provider: ${{ vars.WORKLOAD_IDENTITY_POOL_PROVIDER }}
+  project: ${{ vars.GCP_PROJECT_ID }}
+  region: ${{ vars.GCP_REGION }}
+  run_sa: ${{ vars.RUN_SERVICE_ACCOUNT }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Checkout
+      id: checkout
+      uses: actions/checkout@v4
+
+    - name: Authenticate to GCP
+      uses: google-github-actions/auth@v2
+      id: auth
+      with:
+        token_format: access_token
+        project_id: ${{ env.project }}
+        workload_identity_provider: ${{ env.wif_provider }}
+        service_account: ${{ env.wif_sa }}
+
+    - name: Set dynamic env variables
+      id: env
+      run: |
+        echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+    - uses: docker/login-action@v3
+      name: Docker Login
+      id: login-gar
+      with:
+        registry: ${{ env.region }}-docker.pkg.dev
+        username: oauth2accesstoken
+        password: ${{ steps.auth.outputs.access_token }}
+
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.region }}-docker.pkg.dev/${{ env.project }}/images/pam-manager
+        tags: |
+          type=sha
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      id: build-and-push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: |
+          ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+    - uses: google-github-actions/deploy-cloudrun@v2
+      id: deploy
+      with:
+        service: pam-manager
+        image: ${{ env.region }}-docker.pkg.dev/${{ env.project }}/images/pam-manager@${{ steps.build-and-push.outputs.image-digest }}
+        env_vars: |
+          GCP_PROJECT_ID=${{ env.project }}
+        tag: sha-${{ env.short_sha }}
+        project_id: ${{ env.project }}
+        region: ${{ env.region }}
+        flags: '--no-allow-unauthenticated --cpu-boost --concurrency=500 --max-instances=1 --memory=256Mi --timeout=10m --cpu=1 --service-account=${{ env.run_sa }}'
+
