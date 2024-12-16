@@ -1,0 +1,8 @@
+.gitignore
+.idea
+.github
+.env
+.golangci.yml
+.hadolint.yaml
+README.md
+Makefile
