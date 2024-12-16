@@ -1,0 +1,41 @@
+run:
+  concurrency: 4
+  timeout: 5m
+  tests: false
+  go: '1.23'
+
+linters:
+  enable:
+    - dupl
+    - dupword
+    - durationcheck
+    - errcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - ginkgolinter
+    - gofmt
+    - goimports
+    - gosec
+    - reassign
+    - staticcheck
+    - stylecheck
+    - unused
+    - revive
+  disable:
+    - gosimple
+
+issues:
+  # Excluding configuration per-path, per-linter, per-text and per-source
+  exclude-rules:
+    - linters:
+        - gosec
+      text: "weak cryptographic primitive"
+    - path: /
+      inters:
+        - revive
+      text: "struct field Id should be ID"
+    - path: /
+      linters:
+        - revive
+      text: "if block ends with a return statement, so drop this else and outdent its block"
