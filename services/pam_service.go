@@ -64,20 +64,29 @@ func (p *PAMService) GetGrants(ctx context.Context, project, entitlement string)
 	return grants, nil
 }
 
-func (p *PAMService) RequestGrant(ctx context.Context, projectId, entitlement, justification string, duration int64) (*privilegedaccessmanagerpb.Grant, error) {
+func (p *PAMService) RequestGrant(ctx context.Context, projectId, entitlement, reason string, duration int64) (*privilegedaccessmanagerpb.Grant, error) {
 	req := &privilegedaccessmanagerpb.CreateGrantRequest{
 		Parent: fmt.Sprintf("projects/%s/locations/global/entitlements/%s", projectId, entitlement),
 		Grant: &privilegedaccessmanagerpb.Grant{
 			RequestedDuration: &durationpb.Duration{Seconds: duration},
 			Justification: &privilegedaccessmanagerpb.Justification{
 				Justification: &privilegedaccessmanagerpb.Justification_UnstructuredJustification{
-					UnstructuredJustification: justification,
+					UnstructuredJustification: reason,
 				},
 			},
 		},
 	}
 
 	return p.client.CreateGrant(ctx, req)
+}
+
+func (p *PAMService) ApproveGrant(ctx context.Context, id, projectId, entitlement, reason string) (*privilegedaccessmanagerpb.Grant, error) {
+	req := &privilegedaccessmanagerpb.ApproveGrantRequest{
+		Name:   fmt.Sprintf("projects/%s/locations/global/entitlements/%s/grants/%s", projectId, entitlement, id),
+		Reason: reason,
+	}
+
+	return p.client.ApproveGrant(ctx, req)
 }
 
 func (p *PAMService) RevokeGrant(ctx context.Context, id, projectId, entitlement, reason string) (*privilegedaccessmanagerpb.Grant, error) {
