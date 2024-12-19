@@ -72,6 +72,7 @@ jobs:
         image: ${{ env.region }}-docker.pkg.dev/${{ env.project }}/images/pam-manager@${{ steps.build-and-push.outputs.digest }}
         env_vars: |
           GCP_PROJECT_ID=${{ env.project }}
+          DEBUG=false
         tag: sha-${{ env.short_sha }}
         project_id: ${{ env.project }}
         region: ${{ env.region }}
