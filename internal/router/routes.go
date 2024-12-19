@@ -25,6 +25,7 @@ func (r *Router) RegisterRoutes(authHandler *handlers.AuthHandler, pamHandler *h
 	{
 		pam.GET("/grants", pamHandler.GetGrants)
 		pam.POST("/grants", pamHandler.RequestGrant)
+		pam.PATCH("/grants/:id", pamHandler.ApproveGrant)
 		pam.DELETE("/grants/:id", pamHandler.RevokeGrant)
 	}
 }
