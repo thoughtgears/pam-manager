@@ -22,11 +22,8 @@ func init() {
 
 func main() {
 	authService := services.NewAuthService(cfg.GoogleClientID, cfg.GoogleClientSecret, cfg.GoogleRedirectURL)
-	pamService := services.NewPAMService()
-
-	// Handlers
 	authHandler := handlers.NewAuthHandler(authService)
-	pamHandler := handlers.NewPAMHandler(pamService)
+	pamHandler := handlers.NewPamHandler()
 
 	// Create the router
 	r, err := router.New(&cfg)

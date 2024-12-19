@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (r *Router) RegisterRoutes(authHandler *handlers.AuthHandler, pamHandler *handlers.PAMHandler) {
+func (r *Router) RegisterRoutes(authHandler *handlers.AuthHandler, pamHandler *handlers.PamHandler) {
 	r.engine.Use(gin.Recovery(), middleware.Logger())
 
 	r.engine.POST("/debug", middleware.AuthRequired(), handlers.Debug)
@@ -23,6 +23,8 @@ func (r *Router) RegisterRoutes(authHandler *handlers.AuthHandler, pamHandler *h
 	pam := r.engine.Group("/pam")
 	pam.Use(middleware.AuthRequired())
 	{
-		pam.POST("/request", pamHandler.RequestGrant)
+		pam.GET("/grants", pamHandler.GetGrants)
+		pam.POST("/grants", pamHandler.RequestGrant)
+		pam.DELETE("/grants/:id", pamHandler.RevokeGrant)
 	}
 }
