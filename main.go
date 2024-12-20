@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/kelseyhightower/envconfig"
 	"github.com/thoughtgears/pam-manager/handlers"
 	"github.com/thoughtgears/pam-manager/internal/config"
 	"github.com/thoughtgears/pam-manager/internal/router"
 	"github.com/thoughtgears/pam-manager/services"
 
+	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )

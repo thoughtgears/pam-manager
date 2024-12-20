@@ -72,9 +72,17 @@ jobs:
         image: ${{ env.region }}-docker.pkg.dev/${{ env.project }}/images/pam-manager@${{ steps.build-and-push.outputs.digest }}
         env_vars: |
           GCP_PROJECT_ID=${{ env.project }}
+          GCP_REGION=${{ env.region }}
+          GOOGLE_REDIRECT_URL=https://pam-manager-558467044633.europe-west1.run.app/auth/google/callback
           DEBUG=false
+        secrets: |
+          SLACK_CLIENT_SECRET=slack-client-secret:latest
+          SLACK_SIGNING_SECRET=slack-signing-secret:latest
+          SLACK_BOT_TOKEN=slack-bot-token:latest
+          GOOGLE_CLIENT_ID=google-client-id:latest
+          GOOGLE_CLIENT_SECRET=google-client-secret:latest
         tag: sha-${{ env.short_sha }}
         project_id: ${{ env.project }}
         region: ${{ env.region }}
-        flags: '--no-allow-unauthenticated --cpu-boost --concurrency=500 --max-instances=1 --memory=256Mi --timeout=10m --cpu=1 --service-account=${{ env.run_sa }}'
+        flags: '--allow-unauthenticated --cpu-boost --concurrency=80 --max-instances=1 --memory=256Mi --timeout=10m --cpu=1 --service-account=${{ env.run_sa }}'
 
